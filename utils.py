@@ -12,15 +12,6 @@ class Utils :
 		self.DISPLAYSURF = DISPLAYSURF
 
 
-	
-
-
-	def logUtils(logTrack) :
-		with open('log.txt','w') as logFile :
-			logFile.write(str(logTrack))
-		# 	writer = csv.writer(logFile)
-		# 	[writer.writerow(r) for r in board]
-
 	def dwnImg(self) :
 		pieces = {
 			'white_queen' : pygame.image.load('img/white_queen.png'),
