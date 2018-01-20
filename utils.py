@@ -42,7 +42,6 @@ class Utils :
 	def setBoard (self,DISPLAYSURF,menuWidth,TOTALWIDTH,TOTALHEIGHT,cellWidth,cellInfoWidth,cellLineWidth,cellHeight) : 
 		DISPLAYSURF = self.DISPLAYSURF
 		boardCase = {}
-		board = []
 		compt = -1
 		compt2 = 0
 		# create the cell of the board 
@@ -50,6 +49,7 @@ class Utils :
 			cellNumber = ''
 			compt +=1
 			compt2 += 1 
+			#transform number in alphabetical uppercase letter
 			cellLetter = chr(compt2+0x40)
 
 			for j in xrange(0,TOTALHEIGHT-cellInfoWidth,cellHeight) :
@@ -89,4 +89,10 @@ class Utils :
 				self.createText('1',boardCase['H1'].left+(TOTALWIDTH-menuWidth-(cellInfoWidth/2))-cellWidth*7,boardCase['H1'].height/2+boardCase['H1'].top)
 				self.createText('H',boardCase['H1'].width/2+boardCase['H1'].left,boardCase['H1'].top+(TOTALHEIGHT-(cellInfoWidth/2))-cellHeight*7)
 
-	#def setPieces() :
+		return boardCase
+
+
+	def setPieces(self,boardCase) :
+		pieces = self.dwnImg()
+		for piece in pieces :
+			pass
