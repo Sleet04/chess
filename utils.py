@@ -169,20 +169,185 @@ def refreshPieces(dico,gameData) :
 
 #classe qui donnent les cases ou peut aller une piece
 #classe a finir seulement les pionts de commencés et manque la verif de si il y a un adversaire dans les diagonales
-def allowedMvnt(pieceName,cellName,piecesDict,FM) :
+def allowedMvnt(pieceName,cellName,piecesDict,FM,board) :
 	allowedCell = []
 	colorSign = 1 if 'white' in pieceName else -1
+	color = 'white' if 'white' in pieceName else 'black'
 		
 	if 'pawn' in pieceName :
-		allowedCell.append(cellName[0]+str(int(cellName[1])+colorSign))
+		towardCell = cellName[0]+str(int(cellName[1])+colorSign)
+		x,y = board[towardCell].left+10 , board[towardCell].top+10
+		if findRect(x,y,piecesDict) == (None,None) :
+			allowedCell.append(towardCell)
 		
 		if pieceName not in FM :
 			allowedCell.append(cellName[0]+str(int(cellName[1])+2*colorSign))
 
 		offensedCell = [chr(ord(cellName[0])+1)+str(int(cellName[1])+colorSign),chr(ord(cellName[0])-1)+str(int(cellName[1])+colorSign)]
-		allowedCell.append(offensedCell[0])
-		allowedCell.append(offensedCell[1])
+		if '@' not in offensedCell[0] and 'I' not in offensedCell[0] :
+			x,y = board[offensedCell[0]].left+10 , board[offensedCell[0]].top+10
+			attackedPieceName,attackedPieceObj = findRect(x,y,piecesDict)
+			if  attackedPieceName != None and color not in attackedPieceName :
+				allowedCell.append(offensedCell[0])
+				
+		if  '@' not in offensedCell[1] and 'I' not in offensedCell[1] :
+			x,y = board[offensedCell[1]].left+10 , board[offensedCell[1]].top+10
+			attackedPieceName,attackedPieceObj = findRect(x,y,piecesDict)
+			if  attackedPieceName != None and color not in attackedPieceName :
+				allowedCell.append(offensedCell[1])
+
 		return allowedCell
 
-	return None
+	if 'rook' in pieceName or 'queen' in pieceName:
+		#regarde les cases libres au dessus
+		for i in xrange(1,8) :
+			towardCell = cellName[0]+str(int(cellName[1])+i)
+			if towardCell in board :
+				x,y = board[towardCell].left+10 , board[towardCell].top+10
+				attackedPieceName,attackedPieceObj = findRect(x,y,piecesDict)
+				if  attackedPieceName != None and color in attackedPieceName :
+					break
+				else :
+					allowedCell.append(towardCell)
+					if attackedPieceName != None :
+						break
+		#regarde les cases libres en dessous
+		for i in xrange(-1,-8,-1) :
+			towardCell = cellName[0]+str(int(cellName[1])+i)
+			if towardCell in board :
+				x,y = board[towardCell].left+10 , board[towardCell].top+10
+				attackedPieceName,attackedPieceObj = findRect(x,y,piecesDict)
+				if  attackedPieceName != None and color in attackedPieceName :
+					break
+				else :
+					allowedCell.append(towardCell)
+					if attackedPieceName != None :
+						break
+
+		#regarde les cases libres a gauche
+		for i in xrange(1,8) :
+			towardCell = chr(ord(cellName[0])+i)+cellName[1]
+			if towardCell in board :
+				x,y = board[towardCell].left+10 , board[towardCell].top+10
+				attackedPieceName,attackedPieceObj = findRect(x,y,piecesDict)
+				if  attackedPieceName != None and color in attackedPieceName :
+					break
+				else :
+					allowedCell.append(towardCell)
+					if attackedPieceName != None :
+						break
+
+		#regarde les cases libres a droite
+		for i in xrange(-1,-8,-1) :
+			towardCell = chr(ord(cellName[0])+i)+cellName[1]
+			if towardCell in board :
+				x,y = board[towardCell].left+10 , board[towardCell].top+10
+				attackedPieceName,attackedPieceObj = findRect(x,y,piecesDict)
+				if  attackedPieceName != None and color in attackedPieceName :
+					break
+				else :
+					allowedCell.append(towardCell)
+					if attackedPieceName != None :
+						break
+
+		return allowedCell
+
+	if 'bishop' in pieceName or 'queen' in pieceName :
+		#regarde les cases libres en diago haut droit
+		for i in xrange(1,8) :
+			towardCell = chr(ord(cellName[0])+i)+str(int(cellName[1])+i)
+			if towardCell in board :
+				x,y = board[towardCell].left+10 , board[towardCell].top+10
+				attackedPieceName,attackedPieceObj = findRect(x,y,piecesDict)
+				if  attackedPieceName != None and color in attackedPieceName :
+					break
+				else :
+					allowedCell.append(towardCell)
+					if attackedPieceName != None :
+						break
+		#regarde les cases libres en diago bas gauche ###
+		for i in xrange(-1,-8,-1) :
+			towardCell = chr(ord(cellName[0])+i)+str(int(cellName[1])+i)
+			if towardCell in board :
+				x,y = board[towardCell].left+10 , board[towardCell].top+10
+				attackedPieceName,attackedPieceObj = findRect(x,y,piecesDict)
+				if  attackedPieceName != None and color in attackedPieceName :
+					break
+				else :
+					allowedCell.append(towardCell)
+					if attackedPieceName != None :
+						break
+		#regarde les cases libres en diago bas droite
+		for i in xrange(1,8) :
+			towardCell = chr(ord(cellName[0])+i)+str(int(cellName[1])-i)
+			if towardCell in board :
+				x,y = board[towardCell].left+10 , board[towardCell].top+10
+				attackedPieceName,attackedPieceObj = findRect(x,y,piecesDict)
+				if  attackedPieceName != None and color in attackedPieceName :
+					break
+				else :
+					allowedCell.append(towardCell)
+					if attackedPieceName != None :
+						break
+		#regarde les cases libres en diago haut gauche
+		for i in xrange(1,8) :
+			towardCell = chr(ord(cellName[0])-i)+str(int(cellName[1])+i)
+			if towardCell in board :
+				x,y = board[towardCell].left+10 , board[towardCell].top+10
+				attackedPieceName,attackedPieceObj = findRect(x,y,piecesDict)
+				if  attackedPieceName != None and color in attackedPieceName :
+					break
+				else :
+					allowedCell.append(towardCell)
+					if attackedPieceName != None :
+						break
+
+		return allowedCell
+
+	if 'knight' in pieceName :
+		towardCell = chr(ord(cellName[0])+1)+str(int(cellName[1])+2)
+		allowedCell = nonAllyCell(allowedCell,towardCell,board,piecesDict,color)
+
+		towardCell = chr(ord(cellName[0])+2)+str(int(cellName[1])+1)
+		allowedCell = nonAllyCell(allowedCell,towardCell,board,piecesDict,color)
+
+		towardCell = chr(ord(cellName[0])-1)+str(int(cellName[1])+2)
+		allowedCell = nonAllyCell(allowedCell,towardCell,board,piecesDict,color)
+
+		towardCell = chr(ord(cellName[0])+1)+str(int(cellName[1])-2)
+		allowedCell = nonAllyCell(allowedCell,towardCell,board,piecesDict,color)
+
+		towardCell = chr(ord(cellName[0])-1)+str(int(cellName[1])-2)
+		allowedCell = nonAllyCell(allowedCell,towardCell,board,piecesDict,color)
+
+		towardCell = chr(ord(cellName[0])-2)+str(int(cellName[1])+1)
+		allowedCell = nonAllyCell(allowedCell,towardCell,board,piecesDict,color)
+
+		towardCell = chr(ord(cellName[0])+2)+str(int(cellName[1])-1)
+		allowedCell = nonAllyCell(allowedCell,towardCell,board,piecesDict,color)
+
+		towardCell = chr(ord(cellName[0])-2)+str(int(cellName[1])-1)
+		allowedCell = nonAllyCell(allowedCell,towardCell,board,piecesDict,color)
+
+		return allowedCell
+
+	if 'king' in pieceName :
+		for j in range (-1,2,1) :
+			for i in range(-1,2,1) :
+				towardCell = chr(ord(cellName[0])+j)+str(int(cellName[1])+i)
+				if towardCell != cellName:
+					allowedCell = nonAllyCell(allowedCell,towardCell,board,piecesDict,color)
+
+		return allowedCell	
+
+	return allowedCell
+
+
+def nonAllyCell(listMvt,cell,board,piecesDict,colorPiece) :
+	if cell in board :
+		x,y = board[cell].left+10 , board[cell].top+10
+		attackedPieceName,attackedPieceObj = findRect(x,y,piecesDict)
+		if  attackedPieceName == None or colorPiece not in attackedPieceName :
+			listMvt.append(cell)
+	return listMvt
 

@@ -46,6 +46,8 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 		#rafraichissement du plateau 
 		DISPLAYSURF.fill(gameData.WHITE)
 		board = utils.setBoard (DISPLAYSURF,gameData.menuWidth,gameData.TOTALWIDTH,gameData.TOTALHEIGHT,gameData.cellWidth,gameData.cellInfoWidth,gameData.cellLineWidth,gameData.cellHeight)
+		if selectedCellObj != None :
+			pygame.draw.rect(DISPLAYSURF,(30,144,255), (selectedCellObj.left,selectedCellObj.top, gameData.cellWidth, gameData.cellHeight))
 		utils.refreshPieces(pieces,gameData)
 		pygame.display.flip()
 
@@ -58,7 +60,7 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 			elif event.type == MOUSEBUTTONUP :
 			 	if event.button == 1 :
 			 		mouse_x,mouse_y = event.pos
-			 		#premier click
+			 		#premier click mise en mémoire de la pièce sélectionée
 			 		if isClicked == False :
 				 		clickedPieceName,clickedPieceObj = utils.findRect(mouse_x,mouse_y,pieces)
 				 		clickedCellName,clickedCellObj = utils.findRect(mouse_x,mouse_y,board)
@@ -71,24 +73,39 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 
 				 			clickedPieceObj = None
 				 			clickedPieceName = None
-				 	#deuxieme click
+				 	#deuxième click
 				 	else :
 				 		targetCellName,targetCellObj = utils.findRect(mouse_x,mouse_y,board)
 				 		targetPieceName,targetPieceObj = utils.findRect(mouse_x,mouse_y,pieces)
-				 		allowedCell = utils.allowedMvnt(selectedPieceName,selectedCellName,pieces,gameData.pwnFirstMove)
+				 		allowedCell = utils.allowedMvnt(selectedPieceName,selectedCellName,pieces,gameData.pwnFirstMove,board)
 				 		logger.logPrinter(allowedCell)
 				 		if targetCellName in allowedCell :
 					 		if targetCellName != None :
 					 			pieces[selectedPieceName] = targetCellObj
+
+					 			#capture du premier mouvement 
 					 			if 'pawn' in selectedPieceName and selectedPieceName not in gameData.pwnFirstMove :
 					 				gameData.pwnFirstMove.append(selectedPieceName)
+					 			if 'king' in selectedPieceName and selectedPieceName not in gameData.pwnFirstMove :
+					 				gameData.pwnFirstMove.append(selectedPieceName)
+					 			if 'rook' in selectedPieceName and selectedPieceName not in gameData.pwnFirstMove :
+					 				gameData.pwnFirstMove.append(selectedPieceName)
+					 			#color qui doit jouer
 					 			if colorTurn == 'white' :
 				 					colorTurn = 'black'
 				 				else :
 				 					colorTurn = 'white'
+				 			# piece mangée
 					 		if targetPieceName != None :
 					 			pieces.pop(targetPieceName,None)
+
+					 	#reset du click
 				 		isClicked = False
+				 		targetCellName = None
+				 		selectedPieceObj = None
+				 		selectedPieceName = None
+				 		selectedCellName = None
+				 		selectedCellObj = None
 
 
 #width et height de l'ecran a passer en parametre
