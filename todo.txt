@@ -1,0 +1,10 @@
+important :
+	condition d'echec
+	rock
+	
+idées :
+
+	timer
+	jeu a 2v2
+	jeu a distance (session etc)
+	IA ?
