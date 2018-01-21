@@ -1,19 +1,23 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
 import sys , pygame , logUtil
 from pygame.locals import *
+from PIL import Image
 
 
 
 
 BLACK = (0,0,0)
 WHITE = (255,255,255)
-DISPLAYSURF = None
+BROWN = (146,98,57)
 logger = logUtil.LogUtil()
 
-
+#charge toutes les images des pieces du jeu
 def dwnImg() :
 	pieces = {
 		'white_queen' : pygame.image.load('img/white_queen.png'),
-		'white_king' : pygame.image.load('img/white_king.png'),
 		'white_rook' : pygame.image.load('img/white_rook.png'),
 		'white_bishop' : pygame.image.load('img/white_bishop.png'),
 		'white_pawn' : pygame.image.load('img/white_pawn.png'),
@@ -23,10 +27,13 @@ def dwnImg() :
 		'black_rook' : pygame.image.load('img/black_rook.png'),
 		'black_bishop' : pygame.image.load('img/black_bishop.png'),
 		'black_pawn' : pygame.image.load('img/black_pawn.png'),
-		'black_knight' : pygame.image.load('img/black_knight.png')
+		'black_knight' : pygame.image.load('img/black_knight.png'),
+		'white_king' : pygame.image.load('img/white_king.png')
 	}
+
 	return pieces
 
+#creer un text en noir taille 32 en x,y
 def createText(DISPLAYSURF,text,x,y) :
 	fontObj = pygame.font.Font('freesansbold.ttf', 32)
 	textSurfaceObj = fontObj.render(text,True,BLACK)
@@ -35,8 +42,8 @@ def createText(DISPLAYSURF,text,x,y) :
 	DISPLAYSURF.blit(textSurfaceObj,textRectObj)
 
 
+#creer le damier 
 def setBoard (DISPLAYSURF,menuWidth,TOTALWIDTH,TOTALHEIGHT,cellWidth,cellInfoWidth,cellLineWidth,cellHeight) : 
-	DISPLAYSURF = DISPLAYSURF
 	boardCase = {}
 	compt = -1
 	compt2 = 0
@@ -57,7 +64,12 @@ def setBoard (DISPLAYSURF,menuWidth,TOTALWIDTH,TOTALHEIGHT,cellWidth,cellInfoWid
 			else :
 				background = 1
 
-			boardCase[cellLetter+cellNumber] = pygame.draw.rect(DISPLAYSURF, BLACK, (i,j, cellWidth, cellHeight),background)
+			boardCase[cellLetter+cellNumber] = pygame.draw.rect(DISPLAYSURF, BROWN, (i,j, cellWidth, cellHeight),background)
+			if cellNumber == '1' :
+				break
+
+		if cellLetter =='H' :
+				break
 	#create the coordiantes (a1,h8 etc ...)
 	for i in xrange(0,8*9,9) :
 		if i == 0 :
@@ -88,33 +100,89 @@ def setBoard (DISPLAYSURF,menuWidth,TOTALWIDTH,TOTALHEIGHT,cellWidth,cellInfoWid
 	return boardCase
 
 
-def setPieces(DISPLAYSURF ,boardCase) :
+#met les images des pieces a leurs places de départs et renvoie le dictionnaire avec ses positions
+def setPieces(boardCase,gameData) :
 	pieces = dwnImg()
+	piecesDict = {}
 	for piece in pieces :
 		if piece == 'white_queen' :
-			pieces[piece] = pygame.transform.scale(pieces[piece],(boardCase['D1'].width,boardCase['D1'].height))
-			DISPLAYSURF.blit( pieces[piece], boardCase['D1'])
+			piecesDict['white_queen'] = gameData.cellScaling(pieces[piece],boardCase['D1'])[0]
+		if piece == 'white_rook' :
+			iterator = gameData.cellScaling(pieces[piece],boardCase['H1'],boardCase['A1'])
+			for i in range(0,2) :
+				piecesDict['white_rook'+str(i)] = iterator[i]
+		if piece == 'white_bishop' :
+			iterator = gameData.cellScaling(pieces[piece],boardCase['C1'],boardCase['F1'])
+			for i in range(0,2) :
+				piecesDict['white_bishop'+str(i)] = iterator[i]
+		if piece == 'white_pawn' :
+			iterator = gameData.cellScaling(pieces[piece],boardCase['A2'],boardCase['B2'],boardCase['C2'],boardCase['D2'],boardCase['E2'],boardCase['F2'],boardCase['G2'],boardCase['H2'])
+			for i in range(0,8) :
+				piecesDict['white_pawn'+str(i)] = iterator[i]
+		if piece == 'white_knight' :
+			iterator = gameData.cellScaling(pieces[piece],boardCase['B1'],boardCase['G1'])
+			for i in range(0,2) :
+				piecesDict['white_knight'+str(i)] = iterator[i]
+		if piece == 'black_queen' :
+			piecesDict['black_queen'] = gameData.cellScaling(pieces[piece],boardCase['D8'])[0]
+		if piece == 'black_king' :
+			piecesDict['black_king'] = gameData.cellScaling(pieces[piece],boardCase['E8'])[0]
+		if piece == 'black_rook' :
+			iterator = gameData.cellScaling(pieces[piece],boardCase['H8'],boardCase['A8'])
+			for i in range(0,2) :
+				piecesDict['black_rook'+str(i)] = iterator[i]
+		if piece == 'black_bishop' :
+			iterator = gameData.cellScaling(pieces[piece],boardCase['C8'],boardCase['F8'])
+			for i in range(0,2) :
+				piecesDict['black_bishop'+str(i)] = iterator[i]
+		if piece == 'black_pawn' :
+			iterator = gameData.cellScaling(pieces[piece],boardCase['A7'],boardCase['B7'],boardCase['C7'],boardCase['D7'],boardCase['E7'],boardCase['F7'],boardCase['G7'],boardCase['H7'])
+			for i in range(0,8) :
+				piecesDict['black_pawn'+str(i)] = iterator[i]
+		if piece == 'black_knight' :
+			iterator = gameData.cellScaling(pieces[piece],boardCase['B8'],boardCase['G8'])
+			for i in range(0,2) :
+				piecesDict['black_knight'+str(i)] = iterator[i]
+		if piece == 'white_king' :
+			piecesDict['white_king'] = gameData.cellScaling(pieces[piece],boardCase['E1'])[0]
+	return piecesDict
 
-		# if piece == 'white_king' :
+#trouve le Rect sur lequel on a cliqué
+def findRect(posx,posy,dico) :
+	for element in dico :
+		if dico[element].left < posx and posx < dico[element].right  and dico[element].top < posy  and  posy < dico[element].bottom :
+			return element, dico[element]
+	return None,None
 
-		# if piece == 'white_rook' :
 
-		# if piece == 'white_bishop' :
+#met les images des pieces au bonne endroit après les mouvement grace au dictionnaire des pieces
+def refreshPieces(dico,gameData) :
+	imgs = dwnImg()
+	for piece in dico :
+		if piece == 'white_king' or piece == 'black_king' or piece == 'white_queen' or piece == 'black_queen' :
+			gameData.cellScaling(imgs[piece],dico[piece])
+		else :
+			stub = piece[:-1]
+			gameData.cellScaling(imgs[stub],dico[piece])
 
-		# if piece == 'white_pawn' :
 
-		# if piece == 'white_knight' :
 
-		# if piece == 'black_queen' :
+#classe qui donnent les cases ou peut aller une piece
+#classe a finir seulement les pionts de commencés et manque la verif de si il y a un adversaire dans les diagonales
+def allowedMvnt(pieceName,cellName,piecesDict,FM) :
+	allowedCell = []
+	colorSign = 1 if 'white' in pieceName else -1
+		
+	if 'pawn' in pieceName :
+		allowedCell.append(cellName[0]+str(int(cellName[1])+colorSign))
+		
+		if pieceName not in FM :
+			allowedCell.append(cellName[0]+str(int(cellName[1])+2*colorSign))
 
-		# if piece == 'black_king' :
+		offensedCell = [chr(ord(cellName[0])+1)+str(int(cellName[1])+colorSign),chr(ord(cellName[0])-1)+str(int(cellName[1])+colorSign)]
+		allowedCell.append(offensedCell[0])
+		allowedCell.append(offensedCell[1])
+		return allowedCell
 
-		# if piece == 'black_rook' :
+	return None
 
-		# if piece == 'black_bishop' :
-
-		# if piece == 'black_pawn' :
-
-		# if piece == 'black_knight' :
-
-# def cellScaling() :
