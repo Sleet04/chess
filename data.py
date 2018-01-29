@@ -7,7 +7,7 @@ from pygame import transform
 
 # classe de stockage des variables et fonction necessitant ses variables
 class Data :
-	pwnFirstMove = []
+	firstMove = []
 
 
 

@@ -173,6 +173,7 @@ def allowedMvnt(pieceName,cellName,piecesDict,FM,board) :
 	allowedCell = []
 	colorSign = 1 if 'white' in pieceName else -1
 	color = 'white' if 'white' in pieceName else 'black'
+
 		
 	if 'pawn' in pieceName :
 		towardCell = cellName[0]+str(int(cellName[1])+colorSign)
@@ -250,7 +251,6 @@ def allowedMvnt(pieceName,cellName,piecesDict,FM,board) :
 					if attackedPieceName != None :
 						break
 
-		return allowedCell
 
 	if 'bishop' in pieceName or 'queen' in pieceName :
 		#regarde les cases libres en diago haut droit
@@ -337,6 +337,18 @@ def allowedMvnt(pieceName,cellName,piecesDict,FM,board) :
 				towardCell = chr(ord(cellName[0])+j)+str(int(cellName[1])+i)
 				if towardCell != cellName:
 					allowedCell = nonAllyCell(allowedCell,towardCell,board,piecesDict,color)
+		if pieceName not in FM :
+			if color == 'white' :
+				if 'white_rook0' not in FM and findRect(board['F1'].left+5,board['F1'].top+5,piecesDict) == (None,None) and findRect(board['G1'].left+5,board['G1'].top+5,piecesDict) == (None,None):
+					allowedCell.append('H1');
+				if 'white_rook1' not in FM and findRect(board['B1'].left+5,board['B1'].top+5,piecesDict) == (None,None) and findRect(board['C1'].left+5,board['C1'].top+5,piecesDict) == (None,None) and findRect(board['D1'].left+5,board['D1'].top+5,piecesDict) == (None,None):
+					allowedCell.append('A1');
+			else :
+				if 'black_rook0' not in FM and findRect(board['F8'].left+5,board['F8'].top+5,piecesDict) == (None,None) and findRect(board['G8'].left+5,board['G8'].top+5,piecesDict) == (None,None):
+					allowedCell.append('H8');
+				if 'black_rook1' not in FM and  findRect(board['B8'].left+5,board['B8'].top+5,piecesDict) == (None,None) and findRect(board['C8'].left+5,board['C8'].top+5,piecesDict) == (None,None) and findRect(board['D8'].left+5,board['D8'].top+5,piecesDict) == (None,None):
+					allowedCell.append('A8');
+
 
 		return allowedCell	
 
@@ -351,3 +363,11 @@ def nonAllyCell(listMvt,cell,board,piecesDict,colorPiece) :
 			listMvt.append(cell)
 	return listMvt
 
+def chess(board,pieces,cell,color,FM) :
+	for piece in pieces :
+		if color not in piece :
+			cellName,cellRect = findRect(pieces[piece].left+5,pieces[piece].top+5,board)
+			if cell in allowedMvnt(piece,cellName,pieces,FM,board) :
+				logger.logPrinter('en echec')
+				return True
+	return False
