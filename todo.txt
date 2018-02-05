@@ -1,6 +1,5 @@
-important :
-	condition d'echec
-	rock
+ todo :
+ fin de partie
 	
 idées :
 
