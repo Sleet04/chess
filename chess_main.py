@@ -30,7 +30,7 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 	selectedCellName = None
 	selectedCellObj = None
 	colorTurn = 'white'
-	inChess = False
+	inCheck = False
 
 	#initiate Utils
 	logger = logUtil.LogUtil()
@@ -40,8 +40,8 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 	DISPLAYSURF.fill(gameData.WHITE)
 	board = utils.setBoard (DISPLAYSURF,gameData.menuWidth,gameData.TOTALWIDTH,gameData.TOTALHEIGHT,gameData.cellWidth,gameData.cellInfoWidth,gameData.cellLineWidth,gameData.cellHeight)
 	pieces = utils.setPieces(board,gameData)
-	if inChess == True :
-		utils.createText(DISPLAYSURF,'chess',5,5)
+	if inCheck == True :
+		utils.createText(DISPLAYSURF,'chess',10,10)
 
 	#boucle principale du jeu
 	while True : 
@@ -92,13 +92,16 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 						 				pieces[selectedPieceName] = targetCellObj
 						 				pieces[targetPieceName] = tempVar
 						 				targetPieceName = None
-						 			if selectedPieceName == 'black_king' and ( targetCellName == 'H8' or targetCellName == 'A8') :
+						 			elif selectedPieceName == 'black_king' and ( targetCellName == 'H8' or targetCellName == 'A8') :
 						 				tempVar = selectedCellObj
 						 				pieces[selectedPieceName] = targetCellObj
 						 				pieces[targetPieceName] = tempVar
 						 				targetPieceName = None
+					 				else : 
+					 					pieces[selectedPieceName] = targetCellObj
 					 			else : 
-					 				pieces[selectedPieceName] = targetCellObj
+					 					pieces[selectedPieceName] = targetCellObj
+
 
 					 			#capture du premier mouvement 
 					 			if 'pawn' in selectedPieceName and selectedPieceName not in gameData.firstMove :
@@ -111,14 +114,32 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 					 			king = colorTurn+'_king'
 						 		kingCell, uselessVar = utils.findRect(pieces[king].left+10,pieces[king].top+10,board)
 						 		if utils.chess(board,pieces,kingCell,colorTurn,gameData.firstMove) == True :
+						 			inCheck = True
 						 			pieces = oldPieces
 						 			targetPieceName = None
 						 		else :
 					 			#color qui doit jouer
+					 				inCheck = False
 						 			if colorTurn == 'white' :
 					 					colorTurn = 'black'
 					 				else :
 					 					colorTurn = 'white'
+
+					 			if utils.chess(board,pieces,kingCell,colorTurn,gameData.firstMove) == True :
+					 				ouf = False
+					 				for piece in pieces :
+					 					if colorTurn in piece :
+						 					pieceCellName,pieceCellRect = utils.findRect(pieces[piece].left+5,pieces[piece].top+5,board)
+						 					allowedCell = utils.allowedMvnt(piece,pieceCellName,pieces,gameData.firstMove,board)
+						 					for cells in allowedCell :
+						 						tempPieces = pieces.copy()
+						 						tempPieces[piece] = board[cells]
+						 						if utils.chess(board,tempPieces,kingCell,colorTurn,gameData.firstMove) == False :
+						 							ouf = True
+						 			if ouf == False :
+
+					 							
+
 				 			# piece mangée
 					 		if targetPieceName != None :
 					 			pieces.pop(targetPieceName,None)
