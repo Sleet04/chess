@@ -31,6 +31,7 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 	selectedCellObj = None
 	colorTurn = 'white'
 	inCheck = False
+	END_OF_GAME="this is the end" 
 
 	#initiate Utils
 	logger = logUtil.LogUtil()
@@ -137,11 +138,11 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 						 						if utils.chess(board,tempPieces,kingCell,colorTurn,gameData.firstMove) == False :
 						 							ouf = True
 						 			if ouf == False :
-
-					 							
+						 				utils.createText(DISPLAYSURF,END_OF_GAME,0,0)
+						 				print "end of game"				
 
 				 			# piece mangée
-					 		if targetPieceName != None :
+				 			if targetPieceName != None :
 					 			pieces.pop(targetPieceName,None)
 
 
