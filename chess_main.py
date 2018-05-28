@@ -32,6 +32,7 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 	colorTurn = 'white'
 	inCheck = False
 	END_OF_GAME="this is the end" 
+	isGameEnded = False
 
 	#initiate Utils
 	logger = logUtil.LogUtil()
@@ -45,7 +46,7 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 		utils.createText(DISPLAYSURF,'chess',10,10)
 
 	#boucle principale du jeu
-	while True : 
+	while not isGameEnded : 
 
 		#rafraichissement du plateau 
 		DISPLAYSURF.fill(gameData.WHITE)
@@ -82,6 +83,7 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 				 		targetCellName,targetCellObj = utils.findRect(mouse_x,mouse_y,board)
 				 		targetPieceName,targetPieceObj = utils.findRect(mouse_x,mouse_y,pieces)
 				 		allowedCell = utils.allowedMvnt(selectedPieceName,selectedCellName,pieces,gameData.firstMove,board)
+				 		print allowedCell
 				 		oldPieces = pieces.copy()
 				 		if targetCellName in allowedCell :
 					 		if targetCellName != None :
@@ -125,8 +127,10 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 					 					colorTurn = 'black'
 					 				else :
 					 					colorTurn = 'white'
-
+					 			print utils.chess(board,pieces,kingCell,'black',gameData.firstMove)
+					 			print utils.chess(board,pieces,kingCell,'white',gameData.firstMove)
 					 			if utils.chess(board,pieces,kingCell,colorTurn,gameData.firstMove) == True :
+					 				print 'echec'
 					 				ouf = False
 					 				for piece in pieces :
 					 					if colorTurn in piece :
@@ -136,10 +140,12 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 						 						tempPieces = pieces.copy()
 						 						tempPieces[piece] = board[cells]
 						 						if utils.chess(board,tempPieces,kingCell,colorTurn,gameData.firstMove) == False :
+						 							print "enfin"
 						 							ouf = True
 						 			if ouf == False :
 						 				utils.createText(DISPLAYSURF,END_OF_GAME,0,0)
-						 				print "end of game"				
+						 				print "END"
+						 				#isGameEnded = True			
 
 				 			# piece mangée
 				 			if targetPieceName != None :
@@ -154,6 +160,8 @@ def __initiateGame__(TOTALWIDTH,TOTALHEIGHT) :
 				 		selectedPieceName = None
 				 		selectedCellName = None
 				 		selectedCellObj = None
+
+	utils.createText(DISPLAYSURF,END_OF_GAME,0,0)
 
 
 #width et height de l'ecran a passer en parametre

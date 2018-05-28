@@ -367,7 +367,11 @@ def chess(board,pieces,cell,color,FM) :
 	for piece in pieces :
 		if color not in piece :
 			cellName,cellRect = findRect(pieces[piece].left+5,pieces[piece].top+5,board)
+			if cellName == 'black_queen' :
+				print cellName
+				print allowedMvnt(piece,cellName,pieces,FM,board)
 			if cell in allowedMvnt(piece,cellName,pieces,FM,board) :
 				logger.logPrinter('en echec')
+				print 'chess return true'
 				return True
 	return False
